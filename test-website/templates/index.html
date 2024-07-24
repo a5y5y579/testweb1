@@ -3,18 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <title>測試網站</title>
+    <script>
+        // 在 Local Storage 中儲存評論
+        function saveComment(name, comment) {
+            let comments = JSON.parse(localStorage.getItem('comments')) || [];
+            comments.push({ name, comment });
+            localStorage.setItem('comments', JSON.stringify(comments));
+        }
+
+        // 提交評論
+        function submitComment(event) {
+            event.preventDefault(); // 阻止表單的默認提交行為
+            const name = document.querySelector('input[name="name"]').value;
+            const comment = document.querySelector('input[name="comment"]').value;
+            saveComment(name, comment);
+            alert(`感謝您的評論, ${name}! 評論內容: ${comment}`);
+        }
+
+        // 搜索評論
+        function searchComments(event) {
+            event.preventDefault(); // 阻止表單的默認提交行為
+            const query = document.querySelector('input[name="query"]').value.toLowerCase();
+            const comments = JSON.parse(localStorage.getItem('comments')) || [];
+            const results = comments.filter(comment =>
+                comment.comment.toLowerCase().includes(query)
+            );
+            
+            let response = '<h2>搜索結果</h2>';
+            results.forEach(comment => {
+                response += `<p><b>${comment.name}</b>: ${comment.comment}</p>`;
+            });
+            document.getElementById('search-results').innerHTML = response;
+        }
+
+        window.onload = function() {
+            document.getElementById('comment-form').addEventListener('submit', submitComment);
+            document.getElementById('search-form').addEventListener('submit', searchComments);
+        }
+    </script>
 </head>
 <body>
     <h1>測試網站</h1>
-    <form action="/comment" method="post">
-        名字: <input type="text" name="name"><br>
-        評論: <input type="text" name="comment"><br>
+    <form id="comment-form">
+        名字: <input type="text" name="name" required><br>
+        評論: <input type="text" name="comment" required><br>
         <input type="submit" value="提交">
     </form>
     <hr>
-    <form action="/search" method="get">
+    <form id="search-form">
         搜索評論: <input type="text" name="query"><br>
         <input type="submit" value="搜索">
     </form>
+    <div id="search-results"></div>
 </body>
 </html>
